@@ -1,4 +1,4 @@
- <h1 align="center">MySQL-Pocket-Guide / Guia de bolso MySQL</h1>
+ <h1 align="center">🐬MySQL-Pocket-Guide / Guia de bolso MySQL🐬</h1>
  
 ### Esse repositório contém anotações e lembretes dos meus estudos em MySQL. Pensado principalmente, para consultas rápidas do dia a dia.
 
