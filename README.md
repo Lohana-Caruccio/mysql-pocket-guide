@@ -84,9 +84,9 @@ change telefone celular varchar(14);
 alter table cliente
 modify celular varchar(15) not null;
 ```
-### Rename
+#### Rename
 ```sql
 -- Usado para mudar o nome da tabela
 alter table cliente
 rename to clientes;
-
+```
