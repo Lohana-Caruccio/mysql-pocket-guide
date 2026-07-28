@@ -7,23 +7,28 @@
 ```sql
 create database nomedoBD;
 ```
+
 #### Aponta para qual banco de dados se quer usar
 ```sql
 use database;
 ```
+
 #### Confere qual banco de dados está selecionado
 ```sql
 select database();
 ```
+
 #### Mostra as tabelas já criadas
 ```sql
 show tables;
 ```
+
 #### Apaga a tabela escolhida, ou qualquer outro elemento
 ```sql
 drop table nometabela;
 drop database nomedoBD;
 ```
+
 #### Apaga os dados(linhas) de uma tabela
 ```sql
 delete from table
@@ -31,10 +36,12 @@ where id = 5;
 
 delete * from cliente;
 ```
+
 #### Apaga todos os dados de uma tabela de uma vez só
 ```sql
 truncate table cliente;
 ```
+
 #### Criação de tabelas
 ```sql
 create table cliente (
@@ -50,6 +57,7 @@ constraint fk_cidadecliente foreign key (cidadeId) references cidade(id)
 
 );
 ```
+
 #### Inserção de dados nas tabelas
 ```sql
 -- Forma completa
@@ -57,6 +65,7 @@ insert into cliente (nome, genero, nascimento, email, cidadeId) values ('Julia',
 -- Forma reduzida
 insert into cliente values ('Julia', 'F', '2003-04-25','julia@gmail.com', 2);
 ```
+
 #### Conferir a estrutura de uma tabela existente
 ```sql
 -- Traz os tipos de dados e as propriedades
@@ -72,18 +81,21 @@ add telefone varchar(15);
 alter table alunos
 add constraint pkAluno primary key(id);
 ```
+
 #### Change
 ```sql
 -- Usado mais para mudar o nome da coluna mas pode-se mudar o tipo de dado também
 alter table cliente
 change telefone celular varchar(14);
 ```
+
 #### Modify
 ```sql
 -- Usado mais para apenas mudar as propriedades da coluna
 alter table cliente
 modify celular varchar(15) not null;
 ```
+
 #### Rename
 ```sql
 -- Usado para mudar o nome da tabela
@@ -102,7 +114,7 @@ where id = 2;
 --- nesse exemplo iria atualizar na tabela cidade onde o id é 2, cujo nome da cidade era Bagé, para Gramado
 ```
 
-### Exclusão e Restrição de consultas
+### Exclusão e Restrição de consultas:
 #### Select com where (exemplos)
 ``` sql
 --- ex1
@@ -131,6 +143,7 @@ and salario <= 10000;
 select nome, salario from cliente
 where salario between 5000 and 10000;
 ```
+
 #### Select com order by (deve ser sempre a última cláusula do select)
 ```sql
 --- ex1
@@ -178,6 +191,7 @@ from cidade
 right join estado
 on cidade.Estadoid = estado.id;
 ```
+
 ##### Cross JOIN (serve para gerar todas as combinações possíveis entre duas listas)
 ```sql
 select nomeCidade, nomeEstado
@@ -202,7 +216,7 @@ select nomeFunc as 'Nome do funcionario' from funcionario f
 where f.cidadeid = 1;
 ```
 
-### Limit
+#### Limit
 ##### Exemplo 
 ```sql
 --- traz somente as 3 primeiras linhas
@@ -225,6 +239,7 @@ select nomeFunc from funcionario
 union all
 select nomeCidade from cidade
 ```
+
 #### Comando Case (condição)
 ##### Exemplo
 ```sql
@@ -235,4 +250,50 @@ case
     when sexoFunc = 'M' then 'Masculino'
 end as 'Genero'
 from funcionario;
+```
+
+### SUBCONSULTAS/ SUBQUERYS:
+#### Subconsulta simples
+```sql
+--- Faz primeiro a consulta interna e depois a externa, mostrando todas as colunas do cliente específico onde for achado o cidadeId == 'Curitiba'
+select * from cliente
+where cidadeId = (select id from cidade where nome = 'Curitiba');
+```
+
+#### Subconsulta com dois parâmetros
+```sql
+select * from cliente
+where cidadeId in (select id from cidade 
+					where nome = 'Passo de torres' or nome = 'Curitiba');
+```
+
+#### Comando EXISTS (retorna caso sim ou caso não)
+```sql
+--- Nesse caso, se houver clientes ganhando mais que 2700, retornará o nome e salário dos que ganham menos que 2800, pode-se colocar not exists para negar
+select nome, salario
+from cliente
+where salario < 2800
+and exists(select * from cliente where salario > 2700);
+```
+
+#### Comando ANY
+```sql
+--- é equivalente a "pelo menos um"
+select * from cliente
+where id > any(select distinct clienteid from vendas);
+```
+
+#### Comando ALL
+```sql
+--- é equivalente a "todos eles"
+select * from cliente
+where id > all(select distinct clienteid from vendas);
+```
+
+#### Comando INTERSECT (mesma função do inner join)
+```sql
+--- Nesse caso, só mostra quando o id da cidade existe na tabela cidadeId de um cliente
+select cidadeId from cliente
+intersect
+select id from cidade;
 ```
