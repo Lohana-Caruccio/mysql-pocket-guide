@@ -114,7 +114,7 @@ where id = 2;
 --- nesse exemplo iria atualizar na tabela cidade onde o id é 2, cujo nome da cidade era Bagé, para Gramado
 ```
 
-### Exclusão e Restrição de consultas:
+### Exclusão e Restrição de consultas
 #### Select com where (exemplos)
 ``` sql
 --- ex1
@@ -252,7 +252,7 @@ end as 'Genero'
 from funcionario;
 ```
 
-### SUBCONSULTAS/ SUBQUERYS:
+### SUBCONSULTAS/ SUBQUERYS
 #### Subconsulta simples
 ```sql
 --- Faz primeiro a consulta interna e depois a externa, mostrando todas as colunas do cliente específico onde for achado o cidadeId == 'Curitiba'
@@ -298,20 +298,21 @@ intersect
 select id from cidade;
 ```
 
-### Funções de formatação de dados textuais
-#### Length
+### FUNÇÕES DE FORMATAÇÃO
+#### Dados textuais
+##### Length
 ```sql
 --- Mostra o tamanho de caracteres, nesse caso do nome e dataNascimento
 select nome, length(nome), length(dataNascimento) from cliente;
 ```
 
-#### Upper e Lower
+##### Upper e Lower
 ```sql
 --- Joga tudo para maiúsculo ou minúsculo
 select upper(nome), lower(nome) from cliente;
 ```
 
-#### Trim, Ltrim, Rtrim
+##### Trim, Ltrim, Rtrim
 ```sql
 --- Remove os espaços em branco
 --- exemplo com ltrim e rtrim
@@ -321,14 +322,163 @@ select ltrim(nome), rtrim(nome) from cliente;
 select trim(both from nome), nome from cliente;
 ```
 
-#### Substring
+##### Substring
 ```sql
 --- Pega somente a quantidade que você pedir de caracteres, nesse caso do nome vai pegar a partir do quinto carctere em diante
 select substring(nome, 5), nome from cliente;
 ```
 
-#### Cast
+##### Cast
 ```sql
 --- Muda o tipo de dado
 select cast('2020-12-30' as date), cast('1000.99' as float);
+```
+#### Dados numéricos e temporais
+##### - NUMÉRICO
+###### Round e Truncate
+```sql
+--- Round arredonda o valor numérico (com opção de casas decimais)
+select salario, round(salario, 2) from cliente;
+
+--- Truncate corta o número na quantidade de casas decimais sem arredondar
+select salario, truncate(salario, 2) from cliente;
+```
+
+###### Mod e Div
+```sql
+--- Mod retorna o resto de uma divisão
+select mod(id, 2) from cliente;
+
+--- Div realiza a divisão inteira (descarta as casas decimais)
+select id div 2 from cliente;
+```
+
+##### - DATA E TEMPORAIS
+
+###### Curdate, Curtime e Now
+```sql
+--- Retornam a data atual, hora atual ou ambos juntos
+select curdate(), curtime(), now();
+```
+
+###### Date, Month, Monthname, Year, Day, Week e Weekday
+```sql
+--- Extraem partes específicas de uma coluna do tipo Data
+select 
+    dataNascimento,
+    date(dataNascimento),
+    month(dataNascimento),
+    monthname(dataNascimento),
+    year(dataNascimento),
+    day(dataNascimento),
+    week(dataNascimento),
+    weekday(dataNascimento) 
+from cliente;
+```
+
+###### Adddate e Datediff
+```sql
+--- Adddate adiciona um intervalo de dias ou tempo a uma data
+select adddate(dataNascimento, interval 30 day) from cliente;
+
+--- Datediff calcula a diferença em dias entre duas datas
+select datediff(now(), dataNascimento) from cliente;
+```
+
+###### Date_format
+```sql
+--- Formata a data para o padrão desejado (ex: dia/mês/ano)
+select date_format(dataNascimento, '%d/%m/%Y') from cliente;
+```
+
+###### Time, Timediff e Addtime
+```sql
+--- Time extrai a parte da hora de um campo datetime
+select time(now());
+
+--- Timediff calcula a diferença entre dois horários
+select timediff('18:00:00', '08:00:00');
+
+--- Addtime adiciona um tempo/intervalo a uma hora especificada
+select addtime(curtime(), '02:00:00');
+```
+
+###### Timestamp, Timestampadd e Time_format
+```sql
+--- Timestamp converte ou combina uma expressão em data e hora completas
+select timestamp(dataNascimento) from cliente;
+
+--- Timestampadd adiciona um intervalo específico (MONTH, DAY, HOUR, etc.) a uma data
+select timestampadd(month, 6, dataNascimento) from cliente;
+
+--- Time_format formata um valor de hora (horas, minutos, segundos)
+select time_format(curtime(), '%H:%i') as hora_minuto;
+```
+
+
+### AGREGACÃO E EXTRAÇÃO DE DADOS
+##### Count e Sum
+```sql
+--- Count conta o número total de registros/linhas
+select count(*) from cliente;
+
+--- Sum soma todos os valores de uma coluna numérica
+select sum(salario) from cliente;
+```
+
+##### Min, Max e Avg
+```sql
+--- Min e Max retornam o menor e o maior valor de uma coluna
+select min(salario), max(salario) from cliente;
+
+--- Avg calcula a média aritmética dos valores de uma coluna
+select avg(salario) from cliente;
+```
+
+##### Group By
+```sql
+--- Agrupa os registros com base em uma ou mais colunas para realizar cálculos por grupo
+--- Nesse exemplo somará se baseando por cada cidade, a soma dos salários
+select cidadeId, sum(salario) from cliente
+group by cidadeId;
+```
+
+##### Having
+```sql
+--- Nesse caso, faz quase a mesma coisa que o exemplo anterior, mas só mostrará a soma dos que forem maior que 3000
+select cidadeId, sum(salario) from cliente
+group by cidadeId
+having sum(salario) > 3000;
+```
+
+### INTEGRIDADE E SEGURANÇA DE DADOS
+
+#### Create User
+```sql
+--- Cria um novo usuário no sistema com uma senha definida
+create user 'dev_usuario'@'localhost' identified by 'senha123';
+```
+
+#### Grant
+```sql
+--- Concede permissões específicas (ex: SELECT, INSERT) para o usuário na tabela cliente
+grant select, insert on aula.cliente to 'dev_usuario'@'localhost';
+
+--- Concede todas as permissões em todas as tabelas do banco de dados aula
+grant all privileges on aula.* to 'dev_usuario'@'localhost';
+```
+
+#### Revoke 
+```sql
+--- Remove permissões específicas previamente concedidas ao usuário
+revoke insert on aula.cliente from 'dev_usuario'@'localhost';
+
+--- Remove todos os privilégios do usuário no banco de dados
+revoke all privileges, grant option from 'dev_usuario'@'localhost';
+```
+
+#### Flush Privileges
+```sql
+--- Recarrega as tabelas de permissão do MySQL para garantir que as alterações entrem em vigor imediatamente
+flush privileges;
 ```
