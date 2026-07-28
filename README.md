@@ -297,3 +297,38 @@ select cidadeId from cliente
 intersect
 select id from cidade;
 ```
+
+### Funções de formatação de dados textuais
+#### Length
+```sql
+--- Mostra o tamanho de caracteres, nesse caso do nome e dataNascimento
+select nome, length(nome), length(dataNascimento) from cliente;
+```
+
+#### Upper e Lower
+```sql
+--- Joga tudo para maiúsculo ou minúsculo
+select upper(nome), lower(nome) from cliente;
+```
+
+#### Trim, Ltrim, Rtrim
+```sql
+--- Remove os espaços em branco
+--- exemplo com ltrim e rtrim
+select ltrim(nome), rtrim(nome) from cliente;
+
+--- exemplo de remover ambos ao mesmo tempo
+select trim(both from nome), nome from cliente;
+```
+
+#### Substring
+```sql
+--- Pega somente a quantidade que você pedir de caracteres, nesse caso do nome vai pegar a partir do quinto carctere em diante
+select substring(nome, 5), nome from cliente;
+```
+
+#### Cast
+```sql
+--- Muda o tipo de dado
+select cast('2020-12-30' as date), cast('1000.99' as float);
+```
