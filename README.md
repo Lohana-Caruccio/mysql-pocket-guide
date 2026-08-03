@@ -482,3 +482,47 @@ revoke all privileges, grant option from 'dev_usuario'@'localhost';
 --- Recarrega as tabelas de permissão do MySQL para garantir que as alterações entrem em vigor imediatamente
 flush privileges;
 ```
+
+### Outros comandos
+#### Index
+```sql
+--- Cria um índice para acelerar consultas e buscas pela coluna nome, nesse exemplo pessoa é uma tabela criada com nome, email e data de nascimento
+create index idxPessoa on pessoa(nome);
+
+--- Remove o índice criado previamente caso ele não seja mais necessário
+drop index idxPessoa on pessoa;
+```
+
+#### View
+```sql
+--- Cria uma tabela virtual (View) para simplificar consultas frequentes aos dados de contato
+create view mostraPessoa
+as 
+	select nome as 'Nome de pessoa',
+    email from pessoa;
+
+--- Consulta os dados diretamente pela View como se fosse uma tabela comum
+select * from mostraPessoa;
+
+--- Exclui a View criada do banco de dados
+drop view mostraPessoa;
+```
+
+#### Transactions
+```sql
+--- Inicia um bloco de transação segura para garantir que todas as operações ocorram juntas
+start transaction;
+
+--- Executa as alterações necessárias na tabela pessoa
+insert into pessoa (nome, email, dataNascimento) values('Zanana', 'zanana@gmail.com','2000-09-15');
+select * from pessoa;
+
+--- Confirma e salva permanentemente todas as alterações feitas na transação
+commit;
+
+--- (Opção de emergência) Desfaz todas as alterações caso algo dê errado antes do commit
+rollback;
+
+--- Lembrando que para as transactions funcionarem deve-se usar esse comando
+set autocommit = off;
+```
