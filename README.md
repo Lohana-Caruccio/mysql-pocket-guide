@@ -597,3 +597,84 @@ select * from cartela where concurso = 100;
 --- Remove a Stored Procedure do banco de dados quando necessário
 drop procedure if exists geraNumeros;
 ```
+
+### Function
+### Exemplo de função de par ou ímpar
+```sql
+--- Funções em SQL retornam um valor
+delimiter $$
+create function parImpar(numero int)
+returns char(05) deterministic
+begin
+	declare tipo char(5) default null;
+    set tipo = 'Ímpar';
+    if numero mod 2 = 0 then
+		set tipo = 'Par';
+	end if;
+    return (tipo);
+end$$
+delimiter ;
+
+select parImpar(10), parImpar(23);
+```
+
+### Cursors 
+#### Exemplo de reajuste de salário, com uma tabela funcionário e uma tabela simulação
+```sql
+--- Lembrando que cursores só são usados dentro de stored procedures
+
+delimiter $$
+create procedure simulaReajuste() --- Criada sem parâmetros
+begin
+    --- Declaração das variáveis para armazenar o estado do loop e os dados do funcionário
+    declare done boolean default false; -- variável para identificar o final do cursor
+    declare vnome varchar(100);
+    declare vsalario decimal(10,2);
+    declare vnovoSalario decimal(10,2);
+    declare vdepartamento int;
+
+    --- Declaração do cursor para percorrer a consulta de funcionários linha por linha
+    declare cursorFuncionario cursor
+    for select nome, departamento, salario
+        from funcionario;
+
+    --- Handler para alterar a flag quando não houver mais registros na consulta
+    declare continue handler
+    for not found set done = true;
+
+    --- Abertura do cursor
+    open cursorFuncionario;
+
+    --- Loop de repetição para processar cada registro individualmente
+    leCursor: loop
+        --- Lê os dados da linha atual do cursor e armazena nas variáveis
+        fetch cursorFuncionario
+        into vnome, vdepartamento, vsalario;
+
+        --- Testa se o cursor chegou ao final e encerra o loop
+        if done then -- testa se o cursor chegou ao final.
+            leave leCursor; -- sai do loop ao chegar no final
+        end if;
+
+        --- Regra de negócio para cálculo do reajuste salarial baseado no departamento
+        if vdepartamento = 1 then
+            set vnovoSalario = vsalario * 1.10;
+        elseif vdepartamento = 2 then
+            set vnovoSalario = vsalario * 1.12;
+        else
+            set vnovoSalario = vsalario * 1.08;
+        end if;
+
+        --- Insere o resultado do cálculo na tabela de simulação
+        insert into simulacao
+        values (vnome, vsalario, vnovoSalario);
+    end loop;
+
+    --- Fechamento do cursor após o término do processamento
+    close cursorFuncionario;
+end $$
+delimiter ;
+
+--- Executa a procedure de simulação de reajuste
+call simulaReajuste();
+```
