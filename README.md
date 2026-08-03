@@ -556,3 +556,44 @@ show triggers;
 --- Remove a trigger do banco de dados quando ela não for mais necessária
 drop trigger alterafuncionario;
 ```
+
+### Stored Procedures e Estruturas de Repetição
+#### Exemplo feito para gerar números para uma cartela de loteria
+```sql
+--- Criação de uma tabela para armazenar os números gerados para o concurso
+create table if not exists cartela (
+    concurso int,
+    numero int
+);
+
+--- Criação de uma Stored Procedure para gerar números aleatórios sem repetição
+delimiter $$
+create procedure geraNumeros(numInicial int, numFinal int, numConcurso int)
+begin
+    declare numGerado int default 0;
+    declare i int default 0;
+
+    --- Loop para garantir a inserção de 6 números válidos na cartela
+    while i < 6 do
+        --- Gera um número aleatório dentro do intervalo especificado
+        set numGerado = (select floor(rand() * numFinal) + numInicial);
+        
+        --- Verifica se o número gerado já foi inserido para evitar duplicatas
+        if not exists (select * from cartela where numero = numGerado) then
+            insert into cartela values(numConcurso, numGerado);
+            set i = i + 1;
+        end if;
+    end while;
+end$$
+
+delimiter ;
+
+--- Executa a Stored Procedure para gerar 6 números entre 1 e 60 para o concurso 100
+call geraNumeros(1, 60, 100);
+
+--- Consulta os números gerados para a cartela
+select * from cartela where concurso = 100;
+
+--- Remove a Stored Procedure do banco de dados quando necessário
+drop procedure if exists geraNumeros;
+```
