@@ -526,3 +526,33 @@ rollback;
 --- Lembrando que para as transactions funcionarem deve-se usar esse comando
 set autocommit = off;
 ```
+
+### Trigger
+```sql
+--- Cria uma tabela de auditoria para registrar históricos de alterações
+create table auditoria(
+	id_aud int auto_increment primary key,
+	acao varchar(50),
+    id_func int,
+    salario decimal (10,2),
+    novoSalario decimal(10,2),
+    dataOperacao date
+);
+
+--- Cria um gatilho para salvar automaticamente o histórico sempre que o salário for alterado
+delimiter $$
+create trigger alterafuncionario after update
+on funcionario
+for each row
+begin
+	insert into auditoria (acao, id_func, salario, novoSalario, dataOperacao)
+	values ('alteração', new.id_func, old.salario, new.salario, curdate());
+end$$
+delimiter ;
+
+--- Lista todas as triggers criadas na base de dados atual
+show triggers;
+
+--- Remove a trigger do banco de dados quando ela não for mais necessária
+drop trigger alterafuncionario;
+```
